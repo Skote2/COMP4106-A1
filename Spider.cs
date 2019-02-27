@@ -2,7 +2,8 @@ namespace A1 {
     class Spider : Creature {
         
         public Spider () {}
-        public Spider (short setX, short setY) : base(setX, setY) {}
+        public Spider (int setX, int setY) : base(setX, setY) {}
+        public Spider (Spider s): base(s) {}
 
 
         override public bool move (Board.direction dir) {
