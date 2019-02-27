@@ -1,8 +1,14 @@
 namespace A1 {
     class Ant : Creature {
-        override public void move (Board.direction dir) {
+        public Ant () : base () {}
+        public Ant (Board.direction dirFace) : base(dirFace) {}
+        public Ant (short setX, short setY) : base(setX, setY) {}
+        public Ant (short setX, short setY, Board.direction dirFace) : base(setX, setY) {
+            face = dirFace;
+        }
+        
+        override public bool move (Board.direction dir) {
             switch (dir) {
-                // TODO: make movements up-right, up-left;
                 case Board.direction.up:
                     ++y;
                     break;
@@ -15,7 +21,10 @@ namespace A1 {
                 case Board.direction.right:
                     ++x;
                     break;
+                default:
+                    return false;
             }
+            return true;
         }
     }
 }

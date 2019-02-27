@@ -1,9 +1,13 @@
 namespace A1 {
     class Spider : Creature {
-        override public void move (Board.direction dir) {
+        
+        public Spider () {}
+        public Spider (short setX, short setY) : base(setX, setY) {}
+
+
+        override public bool move (Board.direction dir) {
             switch (dir) {
-                // TODO: make movements up-right, up-left;
-                case Board.direction.up:
+                case Board.direction.up:// TODO: Remove this
                     ++y;
                     break;
                 case Board.direction.down:
@@ -15,7 +19,26 @@ namespace A1 {
                 case Board.direction.right:
                     ++x;
                     break;
+                case Board.direction.up2right: // and use the following
+                    y+=2;
+                    ++x;
+                    break;
+                case Board.direction.up2left:
+                    y+=2;
+                    --x;
+                    break;
+                case Board.direction.upRight2:
+                    ++y;
+                    x+=2;
+                    break;
+                case Board.direction.upLeft2:
+                    ++y;
+                    x-=2;
+                    break;
+                default:
+                    return false;
             }
+            return true;
         }
     }
 }

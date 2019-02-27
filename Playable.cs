@@ -1,5 +1,6 @@
 namespace A1 {
     interface Playable {
-        void move (Board.direction dir);
+        bool move (Board.direction dir);
+        void setCords(short setX, short setY);
     }
 }
