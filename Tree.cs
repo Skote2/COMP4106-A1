@@ -1,32 +1,49 @@
 using System.Collections.Generic;
+using System;
 
 namespace A1{
     class Tree {
-        class Node {
+        public class Node {
             private Node parent;
             public Node Parent { get { return parent; } }
             private List<Node> children;
-            private Dictionary<Board.direction, int> association;
+            public Dictionary<Board.direction, int> association;
             private Board data;
             private int depth;
             private bool isLeaf;
+            public bool IsLeaf { get{ return isLeaf; } }
             public Node (Node parentNode, Board nodeData, int nodeDepth) {
                 data = nodeData;
                 parent = parentNode;
-                isLeaf = data.checkWin();// || data.checkLoss();
+                isLeaf = data.checkWin() || data.checkLoss();
                 depth = nodeDepth;
+                association = new Dictionary<Board.direction, int>();
+                children = new List<Node>();
             }
 
             private Node evaluatePath(Board.direction d) {
-                Node n = new Node(this, new Board(data), ++depth);
-                n.data.play(d);
+                Board hold = new Board(data);
+                if (hold.play(d) == false)
+                    return null;
+                Node n = new Node(this, hold, depth+1);
                 if (!history.ContainsKey(n.data)){
                     history.Add(n.data, n.depth);
                     children.Add(n);
                     association.Add(d, children.IndexOf(n));
+                    
+                }
+                else{
+                    if (history[n.data] > n.depth){
+                        history.Remove(n.data);
+                        history.Add(n.data, n.depth);
+                    }
+                    else
+                        // return history[n.data];
+                        return null;
                 }
                 return n;
             }
+            public bool isWinState() { return data.checkWin(); }
             public List<Node> getChildren () { return children; }
             public Node getChildren (Board.direction dir) {
                 if (isLeaf)//no children
@@ -39,7 +56,65 @@ namespace A1{
             }
         }
 
-        Node head;
+        private Node head;
+        public Node Head { get { return head; } }
         static Dictionary<Board, int> history = new Dictionary<Board, int>();
+
+        public Tree(Board b) {
+            head = new Node(null, b, 0);
+        }
+
+        public Stack<Board.direction> findSolutionBFS() {
+            Array directions = Enum.GetValues(typeof(Board.direction));
+            Node n= head;
+            bool solved = false;
+            
+            Queue<Node> current = new Queue<Node>();
+            current.Enqueue(n);
+            Queue<Node> next = new Queue<Node>();
+            while (!solved && current.Count != 0){//loop down until a solution is found
+                foreach(Node nCur in current){
+                    foreach (Board.direction d in directions){
+                        Node nChild = nCur.getChildren(d);
+                        if (nChild != null){
+                            if (nChild.IsLeaf)
+                                if (nChild.isWinState()){
+                                    n = nChild;
+                                    solved = true;
+                                    break;
+                                }
+                            next.Enqueue(nChild);
+                        }
+                    }
+                    if (solved)
+                        break;
+                }
+                current = next;
+                next = new Queue<Node>();
+            }
+            Stack<Board.direction> s = new Stack<Board.direction>();
+            if (solved) {
+                Node p;
+                int i;
+                //loop up from solution node and collect the decisions
+                while (n.Parent != null){
+                    p = n.Parent;
+                    for (i = 0; i < p.getChildren().Count; ++i)
+                        if (p.getChildren()[i] == n)
+                            break;
+
+                    Board.direction d = Board.direction.up;
+                    foreach (KeyValuePair<Board.direction, int> dir in p.association)
+                        if (dir.Value == i){
+                            d = dir.Key;
+                            break;
+                        }
+                    s.Push(d);
+                    n = n.Parent;
+                }
+            }
+
+            return s;
+        }
     }
 }

@@ -36,10 +36,24 @@ namespace A1 {
                     ++y;
                     x-=2;
                     break;
+                case Board.direction.downLeft:
+                    --y;
+                    --x;
+                break;
+                case Board.direction.downRight:
+                    --y;
+                    ++x;
+                break;
                 default:
                     return false;
             }
             return true;
+        }
+
+        override public bool Equals (object o) {
+            if (o == null)
+                return false;
+            return o.GetType() == typeof(Spider) ? this == (Spider)o : false;
         }
     }
 }

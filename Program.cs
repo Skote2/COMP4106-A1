@@ -7,27 +7,40 @@ namespace A1
     {
         static void Main(string[] args)
         {
-            Creature c = new Spider(5, 5);
             Board b = new Board();
-            
             outputToConsole(b.ToString());
-
-            ConsoleKeyInfo k = Console.ReadKey();
-            
-            switch(k.Key) {
-                case ConsoleKey.UpArrow:
-                    b.play(Board.direction.up);
-                break;
-                case ConsoleKey.DownArrow:
-                break;
-                case ConsoleKey.LeftArrow:
-                break;
-                case ConsoleKey.RightArrow:
-                break;
+            Tree t = new Tree(b);
+            Stack<Board.direction> s = t.findSolutionBFS();
+            foreach (Board.direction d in s){
+                b.play(d);
+                outputToConsole(b.ToString());
             }
-            outputToConsole(b.ToString());
+
+            // playInConsole(b);
         }
 
+        private static void playInConsole(Board b) {
+            outputToConsole(b.ToString());
+            while (!b.checkLoss()){
+                ConsoleKeyInfo k = Console.ReadKey();
+                
+                switch(k.Key) {
+                    case ConsoleKey.UpArrow:
+                        b.play(Board.direction.up);
+                        break;
+                    case ConsoleKey.DownArrow:
+                        b.play(Board.direction.down);
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        b.play(Board.direction.left);
+                        break;
+                    case ConsoleKey.RightArrow:
+                        b.play(Board.direction.right);
+                        break;
+                }
+                outputToConsole(b.ToString());
+            }
+        }
         private static void outputToConsole(string s) {
             foreach (char c in s) {
                 if (c == 'S'){

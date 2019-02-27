@@ -47,7 +47,7 @@ namespace A1 {
         override public bool Equals (object o) {
             if (o == null)
                 return false;
-            return o.GetType() == typeof(Board) ? this == (Creature)o : false;
+            return o.GetType() == typeof(Creature) ? this == (Creature)o : false;
         }
         private int hashing(int hash, int val) { return (hash*5 + val)^val; }
         override public int GetHashCode () {

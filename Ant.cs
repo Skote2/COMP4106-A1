@@ -1,5 +1,6 @@
 namespace A1 {
     class Ant : Creature {
+        private const byte speed = 1;
         public Ant () : base () {}
         public Ant (Board.direction dirFace) : base(dirFace) {}
         public Ant (int setX, int setY) : base(setX, setY) {}
@@ -11,16 +12,16 @@ namespace A1 {
         override public bool move (Board.direction dir) {
             switch (dir) {
                 case Board.direction.up:
-                    ++y;
+                    y += speed;
                     break;
                 case Board.direction.down:
-                    --y;
+                    y -= speed;
                     break;
                 case Board.direction.left:
-                    --x;
+                    x -= speed;
                     break;
                 case Board.direction.right:
-                    ++x;
+                    x += speed;
                     break;
                 default:
                     return false;
@@ -28,12 +29,19 @@ namespace A1 {
             return true;
         }
         
+        override public bool Equals (object o) {
+            if (o == null) return false;
+            if ((object)(o as Ant) == null)
+                return false;
+            return this == (Ant)o;
+        }
         private int hashing(int hash, int val) { return (hash*3 + val)^val; }
         override public int GetHashCode () {
             int hash = 13;
             hash += hashing(hash, x);
             hash += hashing(hash, y);
             hash += hashing(hash, (int)face);
+            hash += hashing(hash, speed);
             return hash;
         }
     }

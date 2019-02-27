@@ -4,9 +4,11 @@ using System.Collections.Generic;
 
 namespace A1 {
     class Board {
-        public enum direction {up = 0, down = 1, left = 2, right = 3, up2right, up2left, upRight2, upLeft2, downRight, downLeft}
-        int xDim;
-        int yDim;
+        public enum direction {up=0, down=1, left=2, right=3, up2right=4, up2left=5, upRight2=6, upLeft2=7, downRight=8, downLeft=9}
+        private bool original;
+        private int xDim;
+        private int yDim;
+        
         private Creature[,] grid;
         private List<Ant> ants = new List<Ant>();
         private List<Spider> spiders = new List<Spider>();
@@ -14,6 +16,7 @@ namespace A1 {
         public Board () : this(15, 15) {}
         public Board (int width, int height) : this(width, height, 1, 1) {}
         public Board (int width, int height, int numSpiders, int numAnts) {
+            original = true;
             xDim = width;
             yDim = height;
             grid = new Creature[xDim, yDim];
@@ -36,6 +39,7 @@ namespace A1 {
             }
         }
         public Board(Board oldBoard) : this(oldBoard.xDim, oldBoard.yDim){
+            original = false;
             spiders = new List<Spider>();
             foreach (Spider s in oldBoard.spiders)
                 spiders.Add(new Spider(s));
@@ -47,16 +51,46 @@ namespace A1 {
         // Methods //
         /////////////
         /* checks and handles spider on ant, and off grid events
-         * only returns true if a game ending event happens (spider walks off the grid)*/
+         * returns true in any of the 3:
+         *   - spider eats ant (same cords)
+         *   - spider goes off of screen (game over)
+         *   - Ant goes off of screen (spawn another)*/
         private bool checkEvent () {
-            foreach (Spider s in spiders) {
-                // TODO check collisions with ants
-                // TODO check for off grid
+            bool flag = false;
+            if (checkWin()){//spider eats ant - same cords
+                if (original){
+                    replaceAnt();
+                    flag = true;
+                }
             }
-            foreach (Ant a in ants) {
-                // TODO check for off grid to spawn new
+            if (checkLoss()){ //spider goes off of grid
+                flag = true;
+                if (original)
+                    Console.WriteLine("Spider went off the grid, you lose.");
             }
-            return true;
+            for (int i = 0; i < ants.Count; ++i)
+                if (ants[i].x >= xDim || ants[i].x < 0 || ants[i].y >= yDim || ants[i].y < 0){//ant goes off of grid
+                    if (original)
+                        replaceAnt();
+                    else{//keep it in the grid so the tracking will complete, handle it going off for the AI with checks between each action on the stack of moves.
+                        if (ants[i].x >= xDim)
+                            ants[i].setCords(xDim-1, ants[i].y);
+                        if (ants[i].x < 0)
+                            ants[i].setCords(0, ants[i].y);
+                        if (ants[i].y >= yDim)
+                            ants[i].setCords(ants[i].x, yDim-1);
+                        if (ants[i].y < 0)
+                            ants[i].setCords(ants[i].x, 0);
+                    }
+                    flag = true;
+                }
+            return flag;
+        }
+        public bool checkLoss() {//Returns true if the spider has left the board and therefore lost
+            foreach (Spider s in spiders)
+                if (s.x >= xDim || s.x < 0 || s.y >= yDim || s.y < 0)
+                    return true;
+            return false;
         }
         public bool checkWin () { //Is the spider on the ant?
             foreach (Spider s in spiders)
@@ -70,9 +104,24 @@ namespace A1 {
                 s.move(dir);
             foreach (Ant a in ants)
                 a.move(a.Face);
-            checkEvent();
+            bool flag = !checkEvent();
+            if (!original && !flag)
+                return flag;
             updateGrid();
-            return true;
+            return flag;
+        }
+        public void replaceAnt () {
+            foreach (Spider s in spiders)
+                for (int i = 0; i < ants.Count; ++i)
+                    if ((s.x == ants[i].x && s.y == ants[i].y) || //check for collision
+                    (ants[i].x >= xDim || ants[i].x < 0 || ants[i].y >= yDim || ants[i].y < 0))//check out of bounds
+                        ants.Remove(ants[i]);
+            Random r = new Random();
+            Ant a = new Ant(r.Next(xDim), r.Next(yDim), (direction)r.Next(4));
+            while (grid[a.x, a.y] != null)//replace until there's nothing there
+                a.setCords(r.Next(xDim), r.Next(yDim));
+            ants.Add(a);
+            grid[a.x, a.y] = a;
         }
         private void updateGrid () {
             grid = new Creature[xDim, yDim];
@@ -137,4 +186,4 @@ namespace A1 {
             return hash;
         }
     }
-}
+}   
