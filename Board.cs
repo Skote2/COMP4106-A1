@@ -60,6 +60,9 @@ namespace A1 {
             if (checkWin()){//spider eats ant - same cords
                 if (original){
                     replaceAnt();
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Spider got the Ant");
+                    Console.ForegroundColor = ConsoleColor.White;
                     flag = true;
                 }
             }

@@ -1,6 +1,6 @@
 namespace A1 {
     class Ant : Creature {
-        private const byte speed = 1;
+        private const byte speed = 3;
         public Ant () : base () {}
         public Ant (Board.direction dirFace) : base(dirFace) {}
         public Ant (int setX, int setY) : base(setX, setY) {}

@@ -7,15 +7,21 @@ namespace A1
     {
         static void Main(string[] args)
         {
-            Board b = new Board();
+            Board b = new Board(15, 15, 1, 1);
             outputToConsole(b.ToString());
-            Tree t = new Tree(b);
-            Stack<Board.direction> s = t.findSolutionBFS();
-            foreach (Board.direction d in s){
-                b.play(d);
-                outputToConsole(b.ToString());
+            for(int i = 0; i < 3; ++i){
+                Tree t = new Tree(b);
+                Stack<Board.direction> s = t.findSolutionBFS();//doesn't always come up with a solution, (often there isn't one)
+                if (s.Count == 0){
+                    Console.WriteLine("No solution found");
+                    break;
+                }
+                foreach (Board.direction d in s){
+                    b.play(d);
+                    outputToConsole(b.ToString());
+                }
             }
-
+            
             // playInConsole(b);
         }
 

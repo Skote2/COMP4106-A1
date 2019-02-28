@@ -55,13 +55,16 @@ namespace A1{
                 return children[association[dir]];
             }
         }
-
+        //////////
+        // Tree //
+        //////////
         private Node head;
         public Node Head { get { return head; } }
         static Dictionary<Board, int> history = new Dictionary<Board, int>();
 
         public Tree(Board b) {
             head = new Node(null, b, 0);
+            history = new Dictionary<Board, int>();
         }
 
         public Stack<Board.direction> findSolutionBFS() {
@@ -94,6 +97,50 @@ namespace A1{
             }
             Stack<Board.direction> s = new Stack<Board.direction>();
             if (solved) {
+                Node p;
+                int i;
+                //loop up from solution node and collect the decisions
+                while (n.Parent != null){
+                    p = n.Parent;
+                    for (i = 0; i < p.getChildren().Count; ++i)
+                        if (p.getChildren()[i] == n)
+                            break;
+
+                    Board.direction d = Board.direction.up;
+                    foreach (KeyValuePair<Board.direction, int> dir in p.association)
+                        if (dir.Value == i){
+                            d = dir.Key;
+                            break;
+                        }
+                    s.Push(d);
+                    n = n.Parent;
+                }
+            }
+
+            return s;
+        }
+        private Node DFS (Node n) {//this is private because it's the recursive loop. call the public one
+            Array directions = Enum.GetValues(typeof(Board.direction));
+
+            foreach (Board.direction d in directions){
+                Node nChild = n.getChildren(d);
+                if (nChild != null){
+                    if (nChild.IsLeaf)
+                        if (nChild.isWinState()){
+                            return nChild;
+                        }
+                    DFS(nChild);
+                }
+            }
+            return null;
+        }
+        public Stack<Board.direction> findSolutionDFS() {//Call this, it probably won't work but it has before. I think the history dictionary is broken and it can only go out one way as a result.
+            Node n= head;
+            
+            n = DFS(n);
+            
+            Stack<Board.direction> s = new Stack<Board.direction>();
+            if (n != null) {
                 Node p;
                 int i;
                 //loop up from solution node and collect the decisions
